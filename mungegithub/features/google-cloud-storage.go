@@ -18,6 +18,7 @@ package features
 
 import (
 	"github.com/spf13/cobra"
+	"k8s.io/contrib/mungegithub/github"
 )
 
 const (
@@ -49,7 +50,7 @@ func (g *GCSInfo) Name() string {
 }
 
 // Initialize will initialize the feature.
-func (g *GCSInfo) Initialize() error {
+func (g *GCSInfo) Initialize(config *github.Config) error {
 	return nil
 }
 

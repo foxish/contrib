@@ -21,6 +21,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
+	"k8s.io/contrib/mungegithub/github"
 )
 
 // Features are all features the code know about. Care should be taken
@@ -35,7 +36,7 @@ type Features struct {
 type feature interface {
 	Name() string
 	AddFlags(cmd *cobra.Command)
-	Initialize() error
+	Initialize(config *github.Config) error
 	EachLoop() error
 }
 
@@ -47,7 +48,7 @@ func (f *Features) GetActive() []feature {
 }
 
 // Initialize should be called with the set of all features needed by all (active) mungers
-func (f *Features) Initialize(requestedFeatures []string) error {
+func (f *Features) Initialize(config *github.Config, requestedFeatures []string) error {
 	for _, name := range requestedFeatures {
 		glog.Infof("Initializing feature: %v", name)
 		feat, found := featureMap[name]
@@ -55,7 +56,7 @@ func (f *Features) Initialize(requestedFeatures []string) error {
 			return fmt.Errorf("Could not find a feature named: %s", name)
 		}
 		f.active = append(f.active, featureMap[name])
-		if err := feat.Initialize(); err != nil {
+		if err := feat.Initialize(config); err != nil {
 			return err
 		}
 		switch name {

@@ -15,6 +15,7 @@ KUBECONFIG ?= $(HOME)/.kube/config
 KUBEDIR ?= $(GOPATH)/src/k8s.io/kubernetes
 CACHEDIR ?= /tmp/mungegithub-cache
 WWW ?= $(PWD)/$(APP)/www
+CONFIGMAP ?= k8s-kubernetes
 
 ifeq ($(APP),submit-queue)
 MUNGERS ?= "blunderbuss,lgtm-after-commit,cherrypick-auto-approve,label-unapproved-picks,needs-rebase,ok-to-test,rebuild-request,path-label,size,stale-pending-ci,stale-green-ci,block-path,release-note-label,comment-deleter,submit-queue,issue-cacher,flake-manager,old-test-getter,close-stale-pr"
@@ -53,7 +54,9 @@ endif
 # The cluster will need a github oauth token (the secret target makes that easy to create)
 deploy: push deployment
 	# Deploy the new deployment
-	kubectl --kubeconfig=$(KUBECONFIG) apply -f $(APP)/local.deployment.yaml --record
+	kubectl --kubeconfig=$(KUBECONFIG) apply -f $(APP)/deployment/$(CONFIGMAP)/namespace.yaml
+	kubectl --kubeconfig=$(KUBECONFIG) apply -f $(APP)/deployment/$(CONFIGMAP)/configmap.yaml
+	kubectl --kubeconfig=$(KUBECONFIG) --namespace=$(CONFIGMAP) apply -f $(APP)/local.deployment.yaml --record
 
 ensure_dirs:
 	-mkdir -p $(KUBEDIR)

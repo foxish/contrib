@@ -1,0 +1,15 @@
+apiVersion: v1
+
+kind: ConfigMap
+metadata:
+  name: flags
+  namespace: k8s-kubernetes
+data:
+  token-file: /etc/secret-volume/token
+  pr-mungers: blunderbuss,lgtm-after-commit,cherrypick-auto-approve,label-unapproved-picks,needs-rebase,ok-to-test,rebuild-request,path-label,size,stale-pending-ci,stale-green-ci,block-path,release-note-label,comment-deleter,submit-queue,issue-cacher,flake-manager,old-test-getter
+  weak-stable-jobs: kubernetes-kubemark-500-gce
+  required-contexts: "\"\""
+  number-of-old-test-results: "5"
+  http-cache-dir: /cache/httpcache
+  test-owners-csv: /gitrepos/kubernetes/test/test_owners.csv
+  repo-dir: /gitrepos

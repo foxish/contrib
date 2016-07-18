@@ -13,15 +13,57 @@ spec:
       - name: submit-queue
         command:
         - /mungegithub
-        - --token-file=/etc/secret-volume/token
-        - --pr-mungers=blunderbuss,lgtm-after-commit,cherrypick-auto-approve,label-unapproved-picks,needs-rebase,ok-to-test,rebuild-request,path-label,size,stale-pending-ci,stale-green-ci,block-path,release-note-label,comment-deleter,submit-queue,issue-cacher,flake-manager,old-test-getter
         - --dry-run=true
-        - --weak-stable-jobs=kubernetes-kubemark-500-gce
-        - --required-contexts="Jenkins GCE Node e2e"
-        - --number-of-old-test-results=5
-        - --http-cache-dir=/cache/httpcache
-        - --test-owners-csv=/gitrepos/kubernetes/test/test_owners.csv
+        - --token-file=$(TOKEN_FILE)
+        - --pr-mungers=$(PR_MUNGERS)
+        - --weak-stable-jobs=$(WEAK_STABLE_JOBS)
+        - --required-contexts=$(REQUIRED_CONTEXTS)
+        - --number-of-old-test-results=$(NUMBER_OF_OLD_TEST_RESULTS)
+        - --http-cache-dir=$(HTTP_CACHE_DIR)
+        - --test-owners-csv=$(TEST_OWNERS_CSV)
+        - --repo-dir=$(REPO_DIR)
         image: gcr.io/google_containers/submit-queue:2016-05-24-86f86cd
+        env:
+          - name: TOKEN_FILE
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: token-file
+          - name: PR_MUNGERS
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: pr-mungers
+          - name: WEAK_STABLE_JOBS
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: weak-stable-jobs
+          - name: REQUIRED_CONTEXTS
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: required-contexts
+          - name: NUMBER_OF_OLD_TEST_RESULTS
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: number-of-old-test-results
+          - name: HTTP_CACHE_DIR
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: http-cache-dir
+          - name: TEST_OWNERS_CSV
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: test-owners-csv
+          - name: REPO_DIR
+            valueFrom:
+              configMapKeyRef:
+                name: flags
+                key: repo-dir
         ports:
         - name: status
           containerPort: 8080
@@ -34,17 +76,15 @@ spec:
         - mountPath: /etc/secret-volume
           name: secret-volume
         - mountPath: /gitrepos
-          name: kubernetes-repo
+          name: repo
         - mountPath: /cache
           name: cache-volume
       volumes:
       - name: secret-volume
         secret:
           secretName: github-token
-      - name: kubernetes-repo
-        gitRepo:
-          repository: "https://github.com/kubernetes/kubernetes.git"
-          revision: "master"
+      - name: repo
+        emptyDir: {}
       - name: cache-volume
         persistentVolumeClaim:
           claimName: submit-queue-cache

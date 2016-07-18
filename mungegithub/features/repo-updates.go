@@ -17,7 +17,6 @@ limitations under the License.
 package features
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,8 +25,11 @@ import (
 	"k8s.io/kubernetes/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/util/yaml"
 
+	"fmt"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
+	"k8s.io/contrib/mungegithub/github"
+	"path"
 )
 
 const (
@@ -43,10 +45,12 @@ type assignmentConfig struct {
 
 // RepoInfo provides information about users in OWNERS files in a git repo
 type RepoInfo struct {
-	enabled       bool
-	kubernetesDir string
-	assignees     map[string]sets.String
-	//owners     map[string]sets.String
+	enabled    bool
+	projectDir string
+	baseDir    string
+	assignees  map[string]sets.String
+	config     *github.Config
+	//owners   map[string]sets.String
 }
 
 func init() {
@@ -92,9 +96,9 @@ func (o *RepoInfo) walkFunc(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	path, err = filepath.Rel(o.kubernetesDir, path)
+	path, err = filepath.Rel(o.projectDir, path)
 	if err != nil {
-		glog.Errorf("Unable to find relative path between %q and %q: %v", o.kubernetesDir, path, err)
+		glog.Errorf("Unable to find relative path between %q and %q: %v", o.projectDir, path, err)
 		return err
 	}
 	path = filepath.Dir(path)
@@ -123,32 +127,42 @@ func (o *RepoInfo) updateRepoUsers() error {
 
 	o.assignees = map[string]sets.String{}
 	//o.owners = map[string]sets.String{}
-	err = filepath.Walk(o.kubernetesDir, o.walkFunc)
+	err = filepath.Walk(o.projectDir, o.walkFunc)
 	if err != nil {
 		glog.Errorf("Got error %v", err)
 	}
-	glog.Infof("Loaded config from %s:%s", o.kubernetesDir, sha)
+	glog.Infof("Loaded config from %s:%s", o.projectDir, sha)
 	glog.V(5).Infof("assignees: %v", o.assignees)
 	//glog.V(5).Infof("owners: %v", o.owners)
 	return nil
 }
 
 // Initialize will initialize the munger
-func (o *RepoInfo) Initialize() error {
+func (o *RepoInfo) Initialize(config *github.Config) error {
 	o.enabled = true
+	o.config = config
+	o.projectDir = path.Join(o.baseDir, o.config.Project)
 
-	if len(o.kubernetesDir) == 0 {
-		glog.Fatalf("--kubernetes-dir is required with selected munger(s)")
+	if len(o.baseDir) == 0 {
+		glog.Fatalf("--repo-dir is required with selected munger(s)")
 	}
-
-	finfo, err := os.Stat(o.kubernetesDir)
+	finfo, err := os.Stat(o.baseDir)
 	if err != nil {
-		return fmt.Errorf("Unable to stat --kubernetes-dir: %v", err)
+		return fmt.Errorf("Unable to stat --repo-dir: %v", err)
 	}
 	if !finfo.IsDir() {
-		return fmt.Errorf("--kubernetes-dir is not a git directory")
+		return fmt.Errorf("--repo-dir is not a directory")
+	}
+	if cloneUrl, err := o.cloneRepo(); err != nil {
+		return fmt.Errorf("Unable to clone %v: %v", cloneUrl, err)
 	}
 	return o.updateRepoUsers()
+}
+
+func (o *RepoInfo) cloneRepo() (string, error) {
+	cloneUrl := fmt.Sprintf("https://github.com/%s/%s", o.config.Org, o.config.Project)
+	_, err := o.gitCommandDir([]string{"clone", cloneUrl}, o.baseDir)
+	return cloneUrl, err
 }
 
 // EachLoop is called at the start of every munge loop
@@ -156,24 +170,27 @@ func (o *RepoInfo) EachLoop() error {
 	if !o.enabled {
 		return nil
 	}
-
 	_, err := o.GitCommand([]string{"remote", "update"})
 	if err != nil {
 		glog.Errorf("Unable to git remote update: %v", err)
 	}
-
 	return o.updateRepoUsers()
 }
 
 // AddFlags will add any request flags to the cobra `cmd`
 func (o *RepoInfo) AddFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&o.kubernetesDir, "kubernetes-dir", "./gitrepos/kubernetes", "Path to git checkout of kubernetes tree")
+	cmd.Flags().StringVar(&o.baseDir, "repo-dir", "/gitrepos", "Path to perform checkout of repository")
 }
 
-// GitCommand will execute the git command with the `args`
+// GitCommand will execute the git command with the `args` within the project directory.
 func (o *RepoInfo) GitCommand(args []string) ([]byte, error) {
+	return o.gitCommandDir(args, o.projectDir)
+}
+
+// GitCommandDir will execute the git command with the `args` within the 'dir' directory.
+func (o *RepoInfo) gitCommandDir(args []string, cmdDir string) ([]byte, error) {
 	cmd := exec.Command("git", args...)
-	cmd.Dir = o.kubernetesDir
+	cmd.Dir = cmdDir
 	return cmd.CombinedOutput()
 }
 

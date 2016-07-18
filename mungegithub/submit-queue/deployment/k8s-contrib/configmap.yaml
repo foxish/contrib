@@ -1,0 +1,13 @@
+apiVersion: v1
+
+kind: ConfigMap
+metadata:
+  name: flags
+  namespace: k8s-contrib
+data:
+  token-file: /etc/secret-volume/token
+  pr-mungers: submit-queue
+  http-cache-dir: /cache/httpcache
+  repo-dir: /gitrepos
+  weak-stable-jobs: "\"\""
+  required-contexts: "\"\""
