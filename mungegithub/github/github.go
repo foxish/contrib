@@ -315,6 +315,20 @@ func (config *Config) AddRootFlags(cmd *cobra.Command) {
 // PreExecute will initialize the Config. It MUST be run before the config
 // may be used to get information from Github
 func (config *Config) PreExecute() error {
+	glog.V(10).Infof("token: %#v\n", config.Token)
+	glog.V(10).Infof("token-file: %#v\n", config.TokenFile)
+	glog.V(10).Infof("min-pr-number: %#v\n", config.MinPRNumber)
+	glog.V(10).Infof("max-pr-number: %#v\n", config.MaxPRNumber)
+	glog.V(10).Infof("dry-run: %#v\n", config.DryRun)
+	glog.V(10).Infof("organization: %#v\n", config.Org)
+	glog.V(10).Infof("project: %#v\n", config.Project)
+	glog.V(10).Infof("state: %#v\n", config.state)
+	glog.V(10).Infof("labels: %#v\n", config.labels)
+	glog.V(10).Infof("address: %#v\n", config.Address)
+	glog.V(10).Infof("www: %#v\n", config.WWWRoot)
+	glog.V(10).Infof("http-cache-dir: %#v\n", config.HTTPCacheDir)
+	glog.V(10).Infof("http-cache-size: %#v\n", config.HTTPCacheSize)
+
 	if len(config.Org) == 0 {
 		glog.Fatalf("--organization is required.")
 	}

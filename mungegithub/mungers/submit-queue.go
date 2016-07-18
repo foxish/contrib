@@ -43,6 +43,7 @@ import (
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
 	"github.com/spf13/cobra"
+	munger_util "k8s.io/contrib/mungegithub/util"
 )
 
 const (
@@ -334,16 +335,6 @@ func (sq *SubmitQueue) calcMergeRateWithTail() float64 {
 	return calcMergeRate(sq.mergeRate, sq.lastMergeTime, now)
 }
 
-// Given a string slice with a single empty value this function will return a empty slice.
-// This is extremely useful for StringSlice flags, so the user can do --flag="" and instead
-// of getting []string{""} they will get []string{}
-func cleanStringSlice(in []string) []string {
-	if len(in) == 1 && len(in[0]) == 0 {
-		return []string{}
-	}
-	return in
-}
-
 // Initialize will initialize the munger
 func (sq *SubmitQueue) Initialize(config *github.Config, features *features.Features) error {
 	sq.features = features
@@ -358,13 +349,23 @@ func (sq *SubmitQueue) internalInitialize(config *github.Config, features *featu
 	defer sq.Unlock()
 
 	// Clean up all of our flags which we wish --flag="" to mean []string{}
-	sq.BlockingJobNames = cleanStringSlice(sq.BlockingJobNames)
-	sq.NonBlockingJobNames = cleanStringSlice(sq.NonBlockingJobNames)
-	sq.PresubmitJobNames = cleanStringSlice(sq.PresubmitJobNames)
-	sq.WeakStableJobNames = cleanStringSlice(sq.WeakStableJobNames)
-	sq.RequiredStatusContexts = cleanStringSlice(sq.RequiredStatusContexts)
-	sq.RequiredRetestContexts = cleanStringSlice(sq.RequiredRetestContexts)
-	sq.doNotMergeMilestones = cleanStringSlice(sq.doNotMergeMilestones)
+	sq.BlockingJobNames = munger_util.CleanStringSlice(sq.BlockingJobNames)
+	sq.NonBlockingJobNames = munger_util.CleanStringSlice(sq.NonBlockingJobNames)
+	sq.PresubmitJobNames = munger_util.CleanStringSlice(sq.PresubmitJobNames)
+	sq.WeakStableJobNames = munger_util.CleanStringSlice(sq.WeakStableJobNames)
+	sq.RequiredStatusContexts = munger_util.CleanStringSlice(sq.RequiredStatusContexts)
+	sq.doNotMergeMilestones = munger_util.CleanStringSlice(sq.doNotMergeMilestones)
+
+	glog.V(10).Infof("jenkins-jobs: %#v\n", sq.BlockingJobNames)
+	glog.V(10).Infof("nonblocking-jenkins-jobs: %#v\n", sq.NonBlockingJobNames)
+	glog.V(10).Infof("presubmit-jobs: %#v\n", sq.PresubmitJobNames)
+	glog.V(10).Infof("weak-stable-jobs: %#v\n", sq.WeakStableJobNames)
+	glog.V(10).Infof("required-contexts: %#v\n", sq.RequiredStatusContexts)
+	glog.V(10).Infof("required-retest-contexts: %#v\n", sq.RequiredRetestContexts)
+	glog.V(10).Infof("do-not-merge-milestones: %#v\n", sq.doNotMergeMilestones)
+	glog.V(10).Infof("admin-port: %#v\n", sq.adminPort)
+	glog.V(10).Infof("retest-body: %#v\n", sq.retestBody)
+	glog.V(10).Infof("fake-e2e: %#v\n", sq.FakeE2E)
 
 	sq.githubConfig = config
 

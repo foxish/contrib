@@ -17,7 +17,9 @@ limitations under the License.
 package features
 
 import (
+	"github.com/golang/glog"
 	"github.com/spf13/cobra"
+	munger_util "k8s.io/contrib/mungegithub/util"
 )
 
 const (
@@ -55,6 +57,9 @@ func (t *TestOptions) Name() string {
 
 // Initialize will initialize the feature.
 func (t *TestOptions) Initialize() error {
+	munger_util.CleanStringSlice(t.RequiredRetestContexts)
+	glog.V(10).Infof("required-retest-contexts: %#v\n", t.RequiredRetestContexts)
+
 	return nil
 }
 

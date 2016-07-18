@@ -17,6 +17,7 @@ limitations under the License.
 package features
 
 import (
+	"github.com/golang/glog"
 	"github.com/spf13/cobra"
 )
 
@@ -50,6 +51,10 @@ func (g *GCSInfo) Name() string {
 
 // Initialize will initialize the feature.
 func (g *GCSInfo) Initialize() error {
+	glog.V(10).Infof("gcs-bucket: %#v\n", g.BucketName)
+	glog.V(10).Infof("gcs-logs-dir: %#v\n", g.LogDir)
+	glog.V(10).Infof("pull-logs-dir: %#v\n", g.PullLogDir)
+	glog.V(10).Infof("pull-key: %#v\n", g.PullKey)
 	return nil
 }
 
