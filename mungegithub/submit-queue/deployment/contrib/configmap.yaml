@@ -14,7 +14,7 @@ data:
   gitrepo.enable-md-yaml: "false"
 
   # test-options feature options.
-  test-options.required-retest-contexts: "\"\""
+  test-options.required-retest-contexts: "continuous-integration/travis-ci/pr"
 
   # submit-queue options.
   submit-queue.required-contexts: "continuous-integration/travis-ci/pr"
