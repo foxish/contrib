@@ -25,6 +25,7 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 	"k8s.io/kubernetes/pkg/util/sets"
 
 	"github.com/golang/glog"
@@ -146,7 +147,7 @@ func (p *PathLabelMunger) Munge(obj *github.MungeObject) {
 	extraLabels := hasLabels.Difference(needsLabels)
 	for _, label := range extraLabels.List() {
 		creator := obj.LabelCreator(label)
-		if creator == botName {
+		if creator == mungerutil.BotName {
 			obj.RemoveLabel(label)
 		}
 	}

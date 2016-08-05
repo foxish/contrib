@@ -23,8 +23,8 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
-	"k8s.io/kubernetes/pkg/util/sets"
 	"k8s.io/contrib/mungegithub/mungers/mungerutil"
+	"k8s.io/kubernetes/pkg/util/sets"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"

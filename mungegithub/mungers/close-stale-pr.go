@@ -24,6 +24,7 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
@@ -98,7 +99,7 @@ func findLastHumanPullRequestUpdate(obj *github.MungeObject) (*time.Time, error)
 		if comment.User == nil || comment.User.Login == nil || comment.CreatedAt == nil || comment.Body == nil {
 			continue
 		}
-		if *comment.User.Login == botName || *comment.User.Login == jenkinsBotName {
+		if *comment.User.Login == mungerutil.BotName || *comment.User.Login == mungerutil.JenkinsBotName {
 			continue
 		}
 		if lastHuman.Before(*comment.UpdatedAt) {

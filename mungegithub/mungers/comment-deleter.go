@@ -19,6 +19,7 @@ package mungers
 import (
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
@@ -110,11 +111,11 @@ func (CommentDeleter) Munge(obj *github.MungeObject) {
 }
 
 func mergeBotComment(comment *githubapi.IssueComment) bool {
-	return *comment.User.Login == botName
+	return *comment.User.Login == mungerutil.BotName
 }
 
 func jenkinsBotComment(comment *githubapi.IssueComment) bool {
-	return *comment.User.Login == jenkinsBotName
+	return *comment.User.Login == mungerutil.JenkinsBotName
 }
 
 // Checks each comment in `comments` and returns a slice of comments for which the `stale` function was true
