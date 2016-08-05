@@ -22,6 +22,7 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
@@ -30,7 +31,7 @@ import (
 
 const (
 	stalePendingCIHours = 24
-	pendingMsgFormat    = `@` + jenkinsBotName + ` test this issue: #IGNORE
+	pendingMsgFormat    = `@` + mungerutil.JenkinsBotName + ` test this issue: #IGNORE
 
 Tests have been pending for %d hours`
 )

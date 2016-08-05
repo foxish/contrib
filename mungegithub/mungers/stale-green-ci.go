@@ -22,6 +22,7 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
@@ -30,7 +31,7 @@ import (
 
 const (
 	staleGreenCIHours = 96
-	greenMsgFormat    = `@` + jenkinsBotName + ` test this
+	greenMsgFormat    = `@` + mungerutil.JenkinsBotName + ` test this
 
 Tests are more than %d hours old. Re-running tests.`
 )

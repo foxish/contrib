@@ -23,11 +23,12 @@ import (
 
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/kubernetes/pkg/util/sets"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
 	"github.com/spf13/cobra"
-	"k8s.io/kubernetes/pkg/util/sets"
 )
 
 // RebuildMunger looks for situations where a someone has asked for an e2e rebuild, but hasn't provided
@@ -41,12 +42,12 @@ const (
 	issueURLRe    = "(?:https?://)?github.com/kubernetes/kubernetes/issues/[0-9]+"
 	rebuildFormat = `@%s
 You must link to the test flake issue which caused you to request this manual re-test.
-Re-test requests should be in the form of: ` + "`" + jenkinsBotName + ` test this issue: #<number>` + "`" + `
+Re-test requests should be in the form of: ` + "`" + mungerutil.JenkinsBotName + ` test this issue: #<number>` + "`" + `
 Here is the [list of open test flakes](https://github.com/kubernetes/kubernetes/issues?q=is:issue+label:kind/flake+is:open).`
 )
 
 var (
-	buildMatcherStr = fmt.Sprintf("@%s\\s+(?:e2e\\s+)?(?:unit\\s+)?test\\s+this.*", jenkinsBotName)
+	buildMatcherStr = fmt.Sprintf("@%s\\s+(?:e2e\\s+)?(?:unit\\s+)?test\\s+this.*", mungerutil.JenkinsBotName)
 	buildMatcher    = regexp.MustCompile(buildMatcherStr)
 	issueMatcher    = regexp.MustCompile("\\s+(?:github\\s+)?(issue|flake)\\:?\\s+(?:#(?:IGNORE|[0-9]+)|" + issueURLRe + ")")
 
@@ -69,7 +70,7 @@ func (r *RebuildMunger) RequiredFeatures() []string { return []string{features.T
 
 // Initialize will initialize the munger
 func (r *RebuildMunger) Initialize(config *github.Config, features *features.Features) error {
-	r.robots = sets.NewString("googlebot", jenkinsBotName, botName)
+	r.robots = sets.NewString("googlebot", mungerutil.JenkinsBotName, mungerutil.BotName)
 	r.features = features
 	return nil
 }

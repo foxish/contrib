@@ -36,6 +36,7 @@ import (
 	"k8s.io/contrib/mungegithub/github"
 	"k8s.io/contrib/mungegithub/mungers/e2e"
 	fake_e2e "k8s.io/contrib/mungegithub/mungers/e2e/fake"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 	"k8s.io/contrib/mungegithub/mungers/shield"
 	"k8s.io/contrib/test-utils/utils"
 
@@ -63,7 +64,7 @@ const (
 var (
 	_ = fmt.Print
 	// This MUST cause a RETEST of everything in the sq.RequiredRetestContexts
-	retestBody = fmt.Sprintf("@%s test this [submit-queue is verifying that this PR is safe to merge]", jenkinsBotName)
+	retestBody = fmt.Sprintf("@%s test this [submit-queue is verifying that this PR is safe to merge]", mungerutil.JenkinsBotName)
 )
 
 type submitStatus struct {

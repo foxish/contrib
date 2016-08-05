@@ -19,6 +19,7 @@ package mungers
 import (
 	"k8s.io/contrib/mungegithub/features"
 	"k8s.io/contrib/mungegithub/github"
+	"k8s.io/contrib/mungegithub/mungers/mungerutil"
 
 	"github.com/golang/glog"
 	githubapi "github.com/google/go-github/github"
@@ -27,7 +28,7 @@ import (
 
 const (
 	okToTestBody = `ok to test
-@` + jenkinsBotName + ` test this
+@` + mungerutil.JenkinsBotName + ` test this
 
 pr builder appears to be missing, activating due to 'lgtm' label.`
 )
