@@ -1,16 +1,20 @@
 package comment
 
-import "github.com/google/go-github/github"
+import (
+	"time"
+
+	"github.com/google/go-github/github"
+)
 
 type Matcher interface {
-	Match(event *github.Comment) bool
+	Match(comment *github.IssueComment) bool
 }
 
 type And []Matcher
 
-func (a And) Match(event *github.Comment) bool {
+func (a And) Match(comment *github.IssueComment) bool {
 	for _, matcher := range []Matcher(a) {
-		if !matcher.Match(event) {
+		if !matcher.Match(comment) {
 			return false
 		}
 	}
@@ -19,9 +23,9 @@ func (a And) Match(event *github.Comment) bool {
 
 type Or []Matcher
 
-func (o Or) Match(event *github.Comment) bool {
+func (o Or) Match(comment *github.IssueComment) bool {
 	for _, matcher := range []Matcher(o) {
-		if matcher.Match(event) {
+		if matcher.Match(comment) {
 			return true
 		}
 	}
@@ -32,6 +36,14 @@ type Not struct {
 	Matcher Matcher
 }
 
-func (n Not) Match(event *github.Comment) bool {
-	return !n.Matcher.Match(event)
+func (n Not) Match(comment *github.IssueComment) bool {
+	return !n.Matcher.Match(comment)
+}
+
+type CreatedAfter struct {
+	Date *time.Time
+}
+
+func (c CreatedAfter) Match(comment *github.IssueComment) bool {
+	return comment.CreatedAt.After(*c.Date)
 }

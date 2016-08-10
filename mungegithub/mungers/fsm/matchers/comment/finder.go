@@ -2,8 +2,8 @@ package comment
 
 import "github.com/google/go-github/github"
 
-func FindComment(events []*github.Comment, matcher Matcher) []*github.Comment {
-	matchingComments := []*github.Comment{}
+func FindComments(events []*github.IssueComment, matcher Matcher) []*github.IssueComment {
+	matchingComments := []*github.IssueComment{}
 
 	for _, event := range events {
 		if matcher.Match(event) {
