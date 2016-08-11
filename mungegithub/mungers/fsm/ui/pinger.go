@@ -12,7 +12,6 @@ import (
 type Pinger struct {
 	keyword     string        // Short description for the ping
 	description string        // Long description for the ping
-	startDate   *time.Time    // Pinger started at this time
 	timePeriod  time.Duration // How often should we ping
 	maxCount    int           // Will stop pinging after that many times
 }
@@ -44,37 +43,31 @@ func (p *Pinger) SetMaxCount(maxCount int) *Pinger {
 	return p
 }
 
-func (p *Pinger) SetStartDate(date *time.Time) *Pinger {
-	p.startDate = date
-
-	return p
-}
-
 // Ping who on the object! Returns true if we reached the ping limit
-func (p *Pinger) Ping(obj *mgh.MungeObject, who string) (bool, error) {
+func (p *Pinger) Ping(obj *mgh.MungeObject, who string, startDate *time.Time) (bool, error) {
 	comments, err := obj.ListComments()
 	if err != nil {
 		return false, err
 	}
 
-	pings := comment.FindComments(comments, p.getMatcher())
+	pings := comment.FindComments(comments, p.getMatcher(startDate))
 
 	// We have pinged too many times, it's time to try something else
 	if p.maxReached(pings) {
 		return true, nil
 	}
 
-	if !p.shouldPingNow(pings) {
+	if !p.shouldPingNow(pings, startDate) {
 		return false, nil
 	}
 
 	return false, Comment(obj, p.keyword, who, p.description)
 }
 
-func (p *Pinger) getMatcher() comment.Matcher {
-	if p.startDate != nil {
+func (p *Pinger) getMatcher(startDate *time.Time) comment.Matcher {
+	if startDate != nil {
 		return comment.And([]comment.Matcher{
-			comment.CreatedAfter{p.startDate},
+			comment.CreatedAfter{startDate},
 			comment.BotMessage{p.keyword},
 		})
 	} else {
@@ -86,9 +79,9 @@ func (p *Pinger) maxReached(pings []*github.IssueComment) bool {
 	return p.maxCount != 0 && len(pings) >= p.maxCount
 }
 
-func (p *Pinger) shouldPingNow(pings []*github.IssueComment) bool {
+func (p *Pinger) shouldPingNow(pings []*github.IssueComment, startDate *time.Time) bool {
 	// We have never pinged, and we don't know when it started, ping now
-	if len(pings) == 0 && p.startDate == nil {
+	if len(pings) == 0 && startDate == nil {
 		return true
 	}
 
@@ -96,7 +89,7 @@ func (p *Pinger) shouldPingNow(pings []*github.IssueComment) bool {
 	if len(pings) != 0 {
 		lastEvent = pings[len(pings)-1].CreatedAt
 	} else {
-		lastEvent = p.startDate
+		lastEvent = startDate
 	}
 
 	return time.Since(*lastEvent) > p.timePeriod
