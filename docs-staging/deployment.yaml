@@ -12,10 +12,12 @@ spec:
       containers:
       - name: docs-staging
         image: docker.io/foxish/jekyll-staging
-        imagePullPolicy: Always
+        command:
+        - /usr/sbin/nginx
+        - -c/nginx.conf
         ports:
         - name: status
-          containerPort: 8080
+          containerPort: 80
         resources:
           requests:
             cpu: 100m
