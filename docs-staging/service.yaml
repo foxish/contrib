@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: docs-staging
-  name: kubernetes-sq-status
+  name: docs-staging
 spec:
   ports:
   - name: status
@@ -11,5 +11,4 @@ spec:
     targetPort: status
   selector:
     app: docs-staging
-    target-repo: kubernetes
   type: LoadBalancer
