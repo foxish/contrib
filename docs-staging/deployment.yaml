@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: docs-staging
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: docs-staging
+    spec:
+      containers:
+      - name: docs-staging
+        image: docker.io/foxish/jekyll-staging
+        imagePullPolicy: Always
+        ports:
+        - name: status
+          containerPort: 8080
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 100m
+        volumeMounts:
+        - mountPath: /pulls
+          name: pulls
+      volumes:
+      - name: pulls
+        persistentVolumeClaim:
+          claimName: docs-staging-cache
