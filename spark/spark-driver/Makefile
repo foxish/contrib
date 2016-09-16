@@ -14,7 +14,7 @@
 
 all: push
 
-TAG = 0.1
+TAG = 0.5
 PREFIX = docker.io/foxish/k8s-spark-driver
 
 container:

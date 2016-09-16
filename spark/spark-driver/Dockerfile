@@ -1,28 +1,18 @@
-# Version 0.1
-FROM ipython/scipystack
+# Version 0.4
+FROM debian:jessie
 MAINTAINER Anirudh Ramanathan "ramanathana@google.com"
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update
 RUN apt-get dist-upgrade -y
+RUN apt-get install -y wget curl default-jre
+RUN export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+RUN wget https://1f5b3e8dda16d464bd3e2da586fd08bff4e30ed2.googledrive.com/host/0BwTtSeDsboEFTFpqNHNQQTdwcWs/original-spark-examples_2.11-2.1.0-SNAPSHOT.jar
 
-# Setup
-RUN sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
-RUN apt-get -y update
-RUN apt-get install -y python libnss3 curl
-
-RUN curl http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz \
-    | tar -xzC /opt && \
-    mv /opt/spark* /opt/spark
-
-RUN apt-get clean
-
-# Fix pypspark six error.
-RUN pip2 install -U six
-RUN pip2 install msgpack-python
-RUN pip2 install avro
-
+# spark snapshot copy
+COPY spark-2.1.0-SNAPSHOT-bin-custom-spark.tgz /opt/spark.tgz
+RUN mkdir /opt/spark
+RUN tar xf /opt/spark.tgz -C /opt/spark --strip-components=1 && rm /opt/spark.tgz
 COPY spark-conf/* /opt/spark/conf/
-
 ENV SPARK_HOME /opt/spark
