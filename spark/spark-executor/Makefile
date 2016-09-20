@@ -14,7 +14,7 @@
 
 all: push
 
-TAG = 0.3
+TAG = 0.41
 PREFIX = docker.io/foxish/k8s-spark-executor
 
 container:

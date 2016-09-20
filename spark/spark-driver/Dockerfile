@@ -10,6 +10,7 @@ RUN apt-get install -y wget curl default-jre
 RUN export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 RUN wget https://1f5b3e8dda16d464bd3e2da586fd08bff4e30ed2.googledrive.com/host/0BwTtSeDsboEFTFpqNHNQQTdwcWs/original-spark-examples_2.11-2.1.0-SNAPSHOT.jar
 
+
 # spark snapshot copy
 COPY spark-2.1.0-SNAPSHOT-bin-custom-spark.tgz /opt/spark.tgz
 RUN mkdir /opt/spark
