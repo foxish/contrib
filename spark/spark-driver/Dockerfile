@@ -12,7 +12,7 @@ RUN wget https://1f5b3e8dda16d464bd3e2da586fd08bff4e30ed2.googledrive.com/host/0
 
 
 # spark snapshot copy
-COPY spark-2.1.0-SNAPSHOT-bin-custom-spark.tgz /opt/spark.tgz
+RUN wget -P /opt/ https://storage.googleapis.com/foxish-spark-distro/spark.tgz
 RUN mkdir /opt/spark
 RUN tar xf /opt/spark.tgz -C /opt/spark --strip-components=1 && rm /opt/spark.tgz
 COPY spark-conf/* /opt/spark/conf/
