@@ -11,7 +11,7 @@ RUN export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 RUN wget https://1f5b3e8dda16d464bd3e2da586fd08bff4e30ed2.googledrive.com/host/0BwTtSeDsboEFTFpqNHNQQTdwcWs/original-spark-examples_2.11-2.1.0-SNAPSHOT.jar
 
 # spark snapshot copy
-RUN wget -P /opt/ https://storage.googleapis.com/foxish-spark-distro/spark.tgz
+RUN wget -P /opt/ https://storage.googleapis.com/foxish-spark-distro/spark.tgz #redo
 RUN mkdir /opt/spark
 RUN tar xf /opt/spark.tgz -C /opt/spark --strip-components=1 && rm /opt/spark.tgz
 COPY spark-conf/* /opt/spark/conf/
